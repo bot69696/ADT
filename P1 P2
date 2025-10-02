@@ -1,0 +1,62 @@
+connect system@xe
+
+create table emp(
+ eno number(3) primary key,
+ ename varchar2(20),
+ address varchar2(30),
+ email varchar2(30),
+ sal number(6)
+);
+
+insert into emp values(101,'ram','dadar','ram@gmail.com',10000);
+insert into emp values(102,'tom','cst','tom@gmail.com',25000);
+insert into emp values(103,'sam','wadala','sam@gmail.com',30000);
+insert into emp values(104,'sonu','wadala','sonu@gmail.com',12000);
+insert into emp values(105,'monu','matunga','monu@gmail.com',24000);
+insert into emp values(106,'mona','sion','mona@gmail.com',35000);
+insert into emp values(107,'sona','sion','sona@gmail.com',40000);
+insert into emp values(108,'harry','kurla','harry@gmail.com',30000);
+insert into emp values(109,'marry','kurla','marry@gmail.com',60000);
+insert into emp values(110,'anni','kurla','anni@gmail.com',10000);
+
+commit;
+
+connect user1@xe
+drop database link l1;   -- only if it already exists
+create database link l1
+connect to system identified by 1234
+using 'xe';
+
+create table e1 as
+select eno, ename, address from emp@l1;
+select * from e1;
+
+connect user2@xe
+drop database link l22;   -- only if already exists
+create database link l22
+connect to system identified by 1234
+using 'xe';
+
+create table e2 as
+select eno, email, sal from emp@l22;
+select * from e2;
+
+connect user3@xe
+drop database link l11;
+drop database link l22;
+create database link l11 connect to user1 identified by u1 using 'xe';
+create database link l22 connect to user2 identified by u2 using 'xe';
+
+select sal from e2@l22 where eno=105;
+
+select email from e2@l22
+where eno = (select eno from e1@l11 where ename='mona');
+
+select e11.ename, e22.email
+from e1@l11 e11, e2@l22 e22
+where e11.eno = e22.eno
+and e22.eno=110;
+
+select ename
+from e1@l11
+where eno in (select eno from e2@l22 where sal > 2000);
