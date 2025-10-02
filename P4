@@ -1,0 +1,30 @@
+CASANNDRA:
+sudo apt update
+sudo apt install cassandra -y
+sudo systemctl start cassandra
+cqlsh
+CREATE KEYSPACE prac4ks WITH replication = {'class':'SimpleStrategy','replication_factor':1};
+USE prac4ks;
+CREATE TABLE users (userid int PRIMARY KEY, name text, age int);
+INSERT INTO users (userid, name, age) VALUES (101, 'Raj', 23);
+INSERT INTO users (userid, name, age) VALUES (102, 'Anita', 30);
+SELECT * FROM users;
+UPDATE users SET age = 24 WHERE userid = 101;
+SELECT * FROM users WHERE userid = 101;
+DELETE FROM users WHERE userid = 102;
+SELECT * FROM users;
+
+REDIS:
+sudo apt update
+sudo apt install redis-server -y
+redis-cli
+SET name "ram"
+SET age 25
+SET email "ram@gmail.com"
+GET name
+GET age
+GET email
+SET age 26
+GET age
+DEL email
+GET email
