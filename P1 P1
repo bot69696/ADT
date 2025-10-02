@@ -1,0 +1,58 @@
+connect system@xe
+alter session set "_ORACLE_SCRIPT"=true;
+
+create user user1 identified by u1;
+grant connect, resource, create database link, unlimited tablespace to user1;
+
+create user user2 identified by u2;
+grant connect, resource, create database link, unlimited tablespace to user2;
+
+create user user3 identified by u3;
+grant connect, resource, create database link, unlimited tablespace to user3;
+
+create table emp(
+ eno number(3) primary key,
+ ename varchar2(20),
+ address varchar2(30),
+ email varchar2(30),
+ sal number(6)
+);
+
+insert into emp values(101,'ram','dadar','ram@gmail.com',10000);
+insert into emp values(102,'tom','cst','tom@gmail.com',25000);
+insert into emp values(103,'sam','wadala','sam@gmail.com',30000);
+insert into emp values(104,'sonu','wadala','sonu@gmail.com',12000);
+insert into emp values(105,'monu','matunga','monu@gmail.com',24000);
+insert into emp values(106,'mona','sion','mona@gmail.com',35000);
+insert into emp values(107,'sona','sion','sona@gmail.com',40000);
+insert into emp values(108,'harry','kurla','harry@gmail.com',30000);
+insert into emp values(109,'marry','kurla','marry@gmail.com',60000);
+insert into emp values(110,'anni','kurla','anni@gmail.com',10000);
+
+commit;
+
+connect user1@xe
+-- password: u1
+create database link l1 connect to system identified by your_system_password using 'xe';
+create table emp1 as select * from emp@l1 where sal <= 10000;
+select * from emp1;
+
+connect user2@xe
+-- password: u2
+create database link l22 connect to system identified by your_system_password using 'xe';
+create table emp2 as select * from emp@l22 where sal > 10000 and sal <= 20000;
+select * from emp2;
+
+connect user3@xe
+-- password: u3
+create database link l0 connect to system identified by your_system_password using 'xe';
+create database link l22 connect to user2 identified by u2 using 'xe';
+create database link l1 connect to user1 identified by u1 using 'xe';
+-- (i) Salary of all employees
+select sal from emp@l0;
+-- (ii) Email where salary=12000
+select email from emp2@l22 where sal=12000;
+-- (iii) Name & Email where eno=109
+select ename,email from emp@l0 where eno=109;
+-- (iv) Names where salary > 20000
+select ename from emp@l0 where sal > 20000;
