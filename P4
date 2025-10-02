@@ -1,7 +1,11 @@
 CASANNDRA:
 sudo apt update
+echo "deb https://downloads.apache.org/cassandra/debian 41x main" | sudo tee /etc/apt/sources.list.d/cassandra.list
+curl https://downloads.apache.org/cassandra/KEYS | sudo apt-key add -
+sudo apt update
 sudo apt install cassandra -y
 sudo systemctl start cassandra
+sudo systemctl enable cassandra
 cqlsh
 CREATE KEYSPACE prac4ks WITH replication = {'class':'SimpleStrategy','replication_factor':1};
 USE prac4ks;
