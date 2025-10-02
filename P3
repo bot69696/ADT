@@ -1,0 +1,68 @@
+connect system@xe
+
+CREATE OR REPLACE TYPE persontype AS OBJECT(
+  personid   NUMBER(3),
+  person_name VARCHAR2(20),
+  dob        DATE,
+  MEMBER FUNCTION age RETURN NUMBER
+);
+/
+
+CREATE OR REPLACE TYPE BODY persontype AS
+  MEMBER FUNCTION age RETURN NUMBER IS
+  BEGIN
+    RETURN(ROUND((SYSDATE - dob) / 365));
+  END age;
+END;
+/
+
+CREATE OR REPLACE TYPE banktype AS OBJECT(
+  account_no NUMBER(20),
+  person     REF persontype,
+  balance    NUMBER(20,2)
+);
+/
+
+CREATE TABLE person OF persontype;
+INSERT INTO person VALUES(persontype(1, 'sam',  TO_DATE('24-APR-1993','DD-MON-YYYY')));
+INSERT INTO person VALUES(persontype(2, 'anni', TO_DATE('24-AUG-1992','DD-MON-YYYY')));
+INSERT INTO person VALUES(persontype(3, 'marry',TO_DATE('11-APR-1992','DD-MON-YYYY')));
+INSERT INTO person VALUES(persontype(4, 'harry',TO_DATE('05-OCT-1992','DD-MON-YYYY')));
+INSERT INTO person VALUES(persontype(5, 'sunny',TO_DATE('14-JUN-1993','DD-MON-YYYY')));
+COMMIT;
+
+SELECT p.*, p.age() "Age" FROM person p;
+
+CREATE TABLE banktable OF banktype;
+INSERT INTO banktable
+  SELECT 101, REF(p), 10000
+  FROM person p WHERE p.person_name = 'sam';
+
+INSERT INTO banktable
+  SELECT 102, REF(p), 20000
+  FROM person p WHERE p.person_name = 'anni';
+
+INSERT INTO banktable
+  SELECT 103, REF(p), 30000
+  FROM person p WHERE p.person_name = 'marry';
+
+INSERT INTO banktable
+  SELECT 104, REF(p), 40000
+  FROM person p WHERE p.person_name = 'harry';
+
+INSERT INTO banktable
+  SELECT 105, REF(p), 50000
+  FROM person p WHERE p.person_name = 'sunny';
+COMMIT;
+
+SELECT account_no, DEREF(person), balance FROM banktable;
+
+SELECT p.person_name, b.account_no
+FROM banktable b, person p
+WHERE p.personid = DEREF(b.person).personid;
+
+SELECT p.person_name, b.balance
+FROM banktable b, person p
+WHERE p.personid = DEREF(b.person).personid
+  AND b.balance > 12000;
+
