@@ -1,3 +1,4 @@
+COUCH APCHE:
 http://127.0.0.1:5984/_utils/
 
 {
@@ -6,3 +7,27 @@ http://127.0.0.1:5984/_utils/
   "age": 23,
   "role": "developer"
 }
+
+MONGOSH:
+https://www.mongodb.com/try/download/community
+CMD: mongosh
+
+use prac2db
+switched to db prac2db
+db.createCollection("students")
+
+db.students.insertOne({roll: 101, name: "Raj", age: 23})
+db.students.insertOne({roll: 102, name: "Anita", age: 30})
+
+db.students.find()
+
+db.students.updateOne(
+  { roll: 101 },
+  { $set: { age: 24 } }
+)
+
+db.students.find({roll: 101})
+
+db.students.deleteOne({ roll: 102 })
+
+db.students.find()
